@@ -13,6 +13,8 @@ public protocol NodeServiceProtocol {
 
 public class NodeService: NetworkService, NodeServiceProtocol {
     public func fetchNodes() async throws -> [Node] {
-        try await request(NodeEndpoint.lightningNodes)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .secondsSince1970
+        return try await request(NodeEndpoint.lightningNodes, decoder: decoder)
     }
 }

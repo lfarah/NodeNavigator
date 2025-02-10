@@ -11,8 +11,8 @@ public struct Node: Codable {
     let publicKey: String
     let alias: String
     let channels: Int
-    let capacity: Int
-    let firstSeen: Int
+    let capacity: Double
+    let firstSeen: Date
     let updatedAt: Date
     let city: [String: String]?
     let country: [String: String]?

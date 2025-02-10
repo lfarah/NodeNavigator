@@ -9,7 +9,7 @@ import Foundation
 
 public class NetworkService {
     /// Request a Decodable object from an APIEndpoint
-    func request<T: Decodable>(_ endpoint: APIEndpoint) async throws -> T {
+    func request<T: Decodable>(_ endpoint: APIEndpoint, decoder: JSONDecoder = JSONDecoder()) async throws -> T {
         guard let baseURL = APIKeys.baseURL else {
             throw NetworkError.invalidURL
         }
@@ -21,7 +21,7 @@ public class NetworkService {
 
         do {
             let (data, _) = try await URLSession.shared.data(for: request)
-            return try JSONDecoder().decode(T.self, from: data)
+            return try decoder.decode(T.self, from: data)
         } catch {
             throw NetworkError.invalidResponse
         }
