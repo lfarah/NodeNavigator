@@ -10,9 +10,12 @@ import SwiftData
 
 @main
 struct NodeNavigatorApp: App {
+
+    private let nodeService = NodeService()
+
     var body: some Scene {
         WindowGroup {
-            NodeListScreen()
+            NodeListScreen(nodeService: nodeService)
         }
     }
 }
