@@ -6,9 +6,18 @@
 //
 
 import Foundation
+import Combine
+
+enum NodeListState {
+    case loading
+    case data(nodes: [Node])
+    case error
+}
 
 class NodeListViewModel: ObservableObject {
-    @Published var nodes: [Node] = []
+    private var nodes: [Node] = []
+    @Published var state: NodeListState = .loading
+
     private let nodeService: NodeServiceProtocol
 
     init(nodeService: NodeServiceProtocol) {
@@ -17,10 +26,13 @@ class NodeListViewModel: ObservableObject {
 
     @MainActor
     func reload() async {
+        state = .loading
         do {
             let nodes: [Node] = try await nodeService.fetchNodes()
             self.nodes = nodes
+            state = .data(nodes: nodes)
         } catch {
+            state = .error
             print("Error: \(error)")
         }
     }
