@@ -10,7 +10,7 @@ import Combine
 
 enum NodeListState {
     case loading
-    case data(nodes: [Node])
+    case data(nodes: [NodeListRowModel])
     case error
 }
 
@@ -30,10 +30,29 @@ class NodeListViewModel: ObservableObject {
         do {
             let nodes: [Node] = try await nodeService.fetchNodes()
             self.nodes = nodes
-            state = .data(nodes: nodes)
+            state = .data(nodes: nodes.map { nodeToRowModel(node: $0) })
         } catch {
             state = .error
             print("Error: \(error)")
         }
+    }
+
+    private func nodeToRowModel(node: Node) -> NodeListRowModel {
+        NodeListRowModel(
+            publicKey: node.publicKey,
+            alias: node.alias,
+            channels: "\(node.channels)",
+            capacity: parseCapacity(for: node),
+            firstSeen: node.firstSeen,
+            updatedAt: node.updatedAt,
+            city: node.city?["pt-BR"] ?? node.city?["en"],
+            country: node.country?["pt-BR"] ?? node.country?["en"]
+        )
+    }
+
+    private func parseCapacity(for node: Node) -> String {
+        // 1 Bitcoin = 100.000.000
+        let capacity = node.capacity / 100000000
+        return String(format: "%.8f BTC", capacity)
     }
 }

@@ -22,7 +22,7 @@ struct NodeListScreen: View {
                     ProgressView()
                 case let .data(nodes):
                     ForEach(nodes, id: \.publicKey) { node in
-                        Text(node.alias)
+                        NodeListRow(model: node)
                     }
                 case .error:
                     Text("Error")
