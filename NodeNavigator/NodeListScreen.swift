@@ -33,6 +33,7 @@ struct NodeListScreen: View {
                     await viewModel.reload()
                 }
             }
+            .searchable(text: $viewModel.searchText)
             .navigationTitle("Nodes")
         }
         .task {

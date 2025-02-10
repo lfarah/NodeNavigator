@@ -24,11 +24,21 @@ enum NodeListState {
 class NodeListViewModel: ObservableObject {
     private var nodes: [Node] = []
     @Published var state: NodeListState = .loading
+    @Published var searchText = ""
 
     private let nodeService: NodeServiceProtocol
+    private var cancellables = Set<AnyCancellable>()
 
     init(nodeService: NodeServiceProtocol) {
         self.nodeService = nodeService
+
+        $searchText
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] text in
+                self?.search(text: text)
+            }
+            .store(in: &cancellables)
     }
 
     @MainActor
@@ -37,10 +47,21 @@ class NodeListViewModel: ObservableObject {
         do {
             let nodes: [Node] = try await nodeService.fetchNodes()
             self.nodes = nodes
-            state = .data(nodes: nodes.map { nodeToRowModel(node: $0) })
+            let parsedNodes = nodes.map { nodeToRowModel(node: $0) }
+            state = .data(nodes: parsedNodes)
         } catch {
             state = .error
             print("Error: \(error)")
+        }
+    }
+
+    func search(text: String) {
+        if text.isEmpty {
+            state = .data(nodes: nodes.map { nodeToRowModel(node: $0) })
+        } else {
+            let searchedNodes = nodes.filter { $0.alias.lowercased().contains(text.lowercased()) }
+            let parsedNodes = searchedNodes.map { nodeToRowModel(node: $0) }
+            state = .data(nodes: parsedNodes)
         }
     }
 

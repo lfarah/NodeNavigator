@@ -160,4 +160,89 @@ struct NodeListViewModelTests {
             #expect(Bool(false))
         }
     }
+
+    @Test func testSearch() async throws {
+        // given
+        let service = NodeServiceMock()
+        service.result = .success([
+            Node.mock(
+                alias: "My Node",
+                city: [
+                    "en": "New York",
+                    "pt-BR": "Nova Iorque"
+                ],
+                country: [
+                    "en": "United States",
+                    "pt-BR": "EUA"
+                ]
+            ),
+            Node.mock(
+                alias: "Another Node",
+                city: [
+                    "en": "New York",
+                    "pt-BR": "Nova Iorque"
+                ],
+                country: [
+                    "en": "United States",
+                    "pt-BR": "EUA"
+                ]
+            )
+        ])
+        let viewModel = NodeListViewModel(nodeService: service)
+        await viewModel.reload()
+
+        // when
+        viewModel.search(text: "My No")
+        
+        // then
+        switch viewModel.state {
+        case let .data(nodes):
+            #expect(nodes.count == 1)
+            #expect(nodes.first?.alias == "My Node")
+        default:
+            #expect(Bool(false))
+        }
+    }
+
+    @Test func testSearchEmpty() async throws {
+        // given
+        let service = NodeServiceMock()
+        service.result = .success([
+            Node.mock(
+                alias: "My Node",
+                city: [
+                    "en": "New York",
+                    "pt-BR": "Nova Iorque"
+                ],
+                country: [
+                    "en": "United States",
+                    "pt-BR": "EUA"
+                ]
+            ),
+            Node.mock(
+                alias: "Another Node",
+                city: [
+                    "en": "New York",
+                    "pt-BR": "Nova Iorque"
+                ],
+                country: [
+                    "en": "United States",
+                    "pt-BR": "EUA"
+                ]
+            )
+        ])
+        let viewModel = NodeListViewModel(nodeService: service)
+        await viewModel.reload()
+
+        // when
+        viewModel.search(text: "")
+
+        // then
+        switch viewModel.state {
+        case let .data(nodes):
+            #expect(nodes.count == 2)
+        default:
+            #expect(Bool(false))
+        }
+    }
 }
