@@ -12,6 +12,13 @@ enum NodeListState {
     case loading
     case data(nodes: [NodeListRowModel])
     case error
+
+    var isLoading: Bool {
+        if case .loading = self {
+            return true
+        }
+        return false
+    }
 }
 
 class NodeListViewModel: ObservableObject {
@@ -52,7 +59,12 @@ class NodeListViewModel: ObservableObject {
 
     private func parseCapacity(for node: Node) -> String {
         // 1 Bitcoin = 100.000.000
-        let capacity = node.capacity / 100000000
-        return String(format: "%.8f BTC", capacity)
+        let capacity = node.capacity / 100_000_000
+        let formatter = NumberFormatter()
+        formatter.minimumFractionDigits = 8
+        formatter.maximumFractionDigits = 8
+        formatter.locale = Locale(identifier: "pt-BR")
+        let formattedString = formatter.string(from: NSNumber(value: capacity)) ?? ""
+        return "\(formattedString) BTC"
     }
 }
