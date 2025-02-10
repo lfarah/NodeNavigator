@@ -8,14 +8,39 @@
 import SwiftUI
 
 struct NodeListScreen: View {
+    @ObservedObject var viewModel: NodeListViewModel
+
+    init(nodeService: NodeServiceProtocol) {
+        _viewModel = ObservedObject(wrappedValue: NodeListViewModel(nodeService: nodeService))
+    }
+
     var body: some View {
         NavigationView {
-            Text("Nodes list")
-                .navigationTitle("Nodes")
+            List {
+                switch viewModel.state {
+                case .loading:
+                    ProgressView()
+                case let .data(nodes):
+                    ForEach(nodes, id: \.publicKey) { node in
+                        Text(node.alias)
+                    }
+                case .error:
+                    Text("Error")
+                }
+            }
+            .refreshable {
+                Task {
+                    await viewModel.reload()
+                }
+            }
+            .navigationTitle("Nodes")
+        }
+        .task {
+            await viewModel.reload()
         }
     }
 }
 
 #Preview {
-    NodeListScreen()
+    NodeListScreen(nodeService: NodeService())
 }
