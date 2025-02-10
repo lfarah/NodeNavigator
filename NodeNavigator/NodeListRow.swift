@@ -89,6 +89,12 @@ struct NodeListRow: View {
                     .foregroundStyle(.secondary)
             }
         }
+        .padding()
+        .background {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color(uiColor: .systemBackground))
+                .shadow(radius: 5)
+        }
     }
 }
 

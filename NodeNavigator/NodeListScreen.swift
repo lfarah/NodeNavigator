@@ -19,13 +19,26 @@ struct NodeListScreen: View {
             List {
                 switch viewModel.state {
                 case .loading:
-                    ProgressView()
+                    HStack {
+                        Spacer()
+                        ProgressView()
+                            .tint(.accent)
+                            .frame(width: 100, height: 100)
+
+                        Spacer()
+                    }
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
                 case let .data(nodes):
                     ForEach(nodes, id: \.publicKey) { node in
                         NodeListRow(model: node)
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
                     }
                 case .error:
-                    Text("Error")
+                    Text("Error fetching nodes. Please Pull to Refresh")
+                        .font(.headline)
+                        .listRowSeparator(.hidden)
                 }
             }
             .refreshable {
@@ -34,6 +47,7 @@ struct NodeListScreen: View {
                 }
             }
             .searchable(text: $viewModel.searchText)
+            .listStyle(.plain)
             .navigationTitle("Nodes")
         }
         .task {
